@@ -1,0 +1,10 @@
+{
+    "schema": "1.1",
+    "location": "http://github.com/cadorn/util/raw/master/catalog.json",
+    "packages": {
+        "lib-js": {
+            "location": "http://github.com/cadorn/util/zipball/master/",
+            "path": "packages/lib-js"
+        }
+    }
+}
