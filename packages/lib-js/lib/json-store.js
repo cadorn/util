@@ -1,4 +1,8 @@
 
+
+function dump(obj) { print(require('test/jsdump').jsDump.parse(obj)) };
+
+var UTIL = require("util");
 var JSON = require("json");
 
 var JsonStore = exports.JsonStore = function(file) {
@@ -12,6 +16,10 @@ JsonStore.prototype.exists = function() {
     return this.file.exists();
 };
 
+JsonStore.prototype.getFile = function() {
+    return this.file;
+}
+
 JsonStore.prototype.init = function() {
     if(this.exists()) {
         throw new Error("Store exists. Cannot initialize store at: " + this.file);
@@ -20,16 +28,57 @@ JsonStore.prototype.init = function() {
     this.save(true);
 };
 
-JsonStore.prototype.set = function(data) {
-    this.data = data;
+JsonStore.prototype.set = function() {
+    if(arguments.length==1) {
+        this.data = arguments[0];
+    } else
+    if(arguments.length==2) {
+        var data = this.get(arguments[0], true, true);
+        data[0][data[1]] = arguments[1];
+    } else {
+        throw new Error("Invalid argument count: " + arguments.length);
+    }
     this.dirty = true;
     this.save();
 };
 
-JsonStore.prototype.get = function() {
+JsonStore.prototype.get = function(keysPath, createObjects, returnWithKey) {
     this.load();
-    return this.data;
+    if(!keysPath) {
+        return this.data;
+    }
+    var keys = [];
+    UTIL.forEach(keysPath, function(key) {
+        if(UTIL.isArrayLike(key)) {
+            keys.push(key.join(""));
+        } else {
+            keys.push(key);
+        }
+    });
+    var data = this.data,
+        key;
+    while(true) {
+        if(keys.length==1 && returnWithKey===true) {
+            return [data, keys.shift()];
+        }
+        if(keys.length==0) break;
+        key = keys.shift();
+        if(!data[key]) {
+            if(createObjects===true) {
+                data[key] = {};
+            } else {
+                return null;
+            }
+        }
+        data = data[key];
+    }
+    return data;
 };
+
+JsonStore.prototype.has = function(keysPath) {
+    return (this.get(keysPath)!==null);
+};
+
 
 JsonStore.prototype.hasFileChanged = function() {
     if(!this.exists()) return false;
