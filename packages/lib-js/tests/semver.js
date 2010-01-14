@@ -5,6 +5,14 @@ var ASSERT = require("assert");
 var SEMVER = require("semver");
 
 
+exports.testGetMajor = function() {
+    
+    ASSERT.equal(SEMVER.getMajor("1.0.1"), "1");
+    ASSERT.equal(SEMVER.getMajor("1.0.1", true), "1");
+    ASSERT.equal(SEMVER.getMajor("1.0.1alpha1", true), "1.0.1alpha");
+
+}
+
 exports.testValidate = function() {
 
     [
@@ -12,7 +20,7 @@ exports.testValidate = function() {
         "0.1.1alpha",
         "1.0.1alpha2",
     ].forEach(function(version) {
-        ASSERT.ok(SEMVER.validate(version));        
+        ASSERT.ok(SEMVER.validate(version));
     });
 
     [
@@ -137,13 +145,17 @@ exports.testLatestForMajor = function() {
 
     versions = [
         "0.1.0beta",
-        "1.1.0",
+        "1.1.0alpha",
         "0.1.0rc2",
         "0.1.0rc1"
     ];
     version = "0.1.0rc1";
     result = SEMVER.latestForMajor(versions, version);
     ASSERT.equal(result, "0.1.0rc2");
+
+    version = "1.0.0a";
+    result = SEMVER.latestForMajor(versions, version);
+    ASSERT.equal(result, "1.1.0alpha");
 }
 
 exports.testLatestForEachMajor = function() {
@@ -163,7 +175,6 @@ exports.testLatestForEachMajor = function() {
         "0.1.1",
         "1.0.1"
     ]);
-    
 
     versions = [
         "0.1.0",
@@ -183,9 +194,35 @@ exports.testLatestForEachMajor = function() {
         "0.1.1alpha",
         "1.0.0",
         "1.0.1alpha2",
-        "2.0.0rc1",
         "2.0.0",
         "3.0.0beta15"
+    ]);
+
+    versions = [
+        "0.3.1beta3",
+        "0.3.2beta4"
+    ];
+    result = SEMVER.latestForEachMajor(versions, true);
+    ASSERT.deepEqual(result, [
+        "0.3.2beta4"
+    ]);
+
+    versions = [
+        "0.3.1beta3",
+        "0.4.1beta4"
+    ];
+    result = SEMVER.latestForEachMajor(versions, true);
+    ASSERT.deepEqual(result, [
+        "0.4.1beta4"
+    ]);
+
+    versions = [
+        "0.3.1beta3",
+        "0.4.1"
+    ];
+    result = SEMVER.latestForEachMajor(versions, true);
+    ASSERT.deepEqual(result, [
+        "0.4.1"
     ]);
 }
 

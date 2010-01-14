@@ -102,7 +102,7 @@ exports.latestForMajor = function(versions, version) {
     return versions.pop();
 }
 
-exports.latestForEachMajor = function(versions, includeAlpha) {
+exports.latestForEachMajor = function(versions, includeAlphanumeric) {
     if(!versions || versions.length==0) {
         return false;
     }
@@ -115,12 +115,13 @@ exports.latestForEachMajor = function(versions, includeAlpha) {
         m;
     versions = versions.filter(function(version) {
         numeric = exports.validate(version, {"numericOnly":true});
-        if(!(includeAlpha || numeric))
+        if(!(includeAlphanumeric || numeric))
             return false;
         major = version.split(".")[0];
-        if(includeAlpha && !numeric) {
-            m = version.match(/^(\d*\.\d*\.\d*)(\D*)(\d*)?$/);
+        if(includeAlphanumeric && !numeric) {
+            m = version.match(/^(\d*)(\.\d*\.\d*)(\D*)(\d*)?$/);
             major = m[1] + "A";
+            if(found[m[1]]) return false;
         }
         if(found[major]) return false;
         found[major] = true;
@@ -130,7 +131,10 @@ exports.latestForEachMajor = function(versions, includeAlpha) {
     return versions;
 }
 
-exports.getMajor = function(version) {
+exports.getMajor = function(version, includeAlphanumeric) {
     if(!version) return false;
-    return version.split(".").shift();
+    if(!includeAlphanumeric) return version.split(".").shift();
+    var m = version.match(/^(\d*)(\.\d*\.\d*)(\D*)(\d*)?$/);
+    if(!m[3]) return m[1];
+    return m[1] + m[2] + m[3];
 }
