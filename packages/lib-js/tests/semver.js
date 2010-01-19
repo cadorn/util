@@ -224,6 +224,17 @@ exports.testLatestForEachMajor = function() {
     ASSERT.deepEqual(result, [
         "0.4.1"
     ]);
+    
+    versions = [
+        "0.1.0",
+        "0.1.1alpha2",
+        "0.1.1beta1"
+    ];
+    result = SEMVER.latestForEachMajor(versions, true);
+    ASSERT.deepEqual(result, [
+        "0.1.0",
+        "0.1.1beta1"
+    ]);    
 }
 
 
