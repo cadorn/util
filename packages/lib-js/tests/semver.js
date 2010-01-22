@@ -237,6 +237,25 @@ exports.testLatestForEachMajor = function() {
     ]);    
 }
 
+exports.testVersionsForTags = function() {
+
+    var tags = [],
+        result;
+
+    tags = [
+        "v0.1.0",
+        "v0.1.1alpha",
+        "v3.0.0alpha1",
+        "dd",
+        "v3.0.0alpha1dfd"
+    ];
+    result = SEMVER.versionsForTags(tags);
+    ASSERT.deepEqual(result, [
+        "0.1.0",
+        "0.1.1alpha",
+        "3.0.0alpha1"
+    ]);
+}
 
 
 if (require.main == module.id)
