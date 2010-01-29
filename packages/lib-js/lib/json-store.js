@@ -93,7 +93,11 @@ JsonStore.prototype.load = function(force) {
         throw new Error("Cannot load store. Store does not exist on disk at: " + this.file);
     }
     if(this.hasFileChanged()) {
-        this.data = JSON.decode(this.file.read());
+        try {
+            this.data = JSON.decode(this.file.read());
+        } catch(e) {
+            throw new Error("Error parsing JSON from file: " + this.file);
+        }
         this.fileMtime = this.file.mtime();
     }
     this.dirty = false;

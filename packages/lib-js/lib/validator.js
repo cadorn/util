@@ -13,7 +13,9 @@ exports.validate = function(type, value, options) {
 
     options = options || {};
     
-    value = UTIL.trim(value);
+    if(typeof value == "string") {
+        value = UTIL.trim(value);
+    }
 
     if(typeof options["throw"] == "undefined") options["throw"] = true;
     
@@ -22,9 +24,21 @@ exports.validate = function(type, value, options) {
             if(!options["throw"]) return false;
             throw new ValidationError("Not a string!");
         }
+
+        if(options["dropTrailingSlash"] && value.substr(value.length-1,1)=="/") {
+            value = value.substr(0,value.length-1);
+        }
         
         var uri = URI.parse(value);
 
+        if(!uri.scheme) {
+            if(options["completeScheme"]) {
+                if(!uri.authorityRoot) {
+                    value = options["completeScheme"] + "://" + value;
+                    uri = URI.parse(value);
+                }
+            }
+        }
         if(!uri.scheme) {
             if(!options["throw"]) return false;
             throw new ValidationError("No URL scheme set!");
@@ -67,7 +81,7 @@ exports.validate = function(type, value, options) {
         return value;
     } else
     if(type=="string") {
-        if(value=="") {
+        if(!value) {
             if(!options["throw"]) return false;
             throw new ValidationError("String is empty!");
         }

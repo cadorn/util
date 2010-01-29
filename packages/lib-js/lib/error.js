@@ -25,14 +25,14 @@ exports.print = function(error, options) {
             STREAM.print("  \0"+color+"(*\0)        " + line);
         });
     }
-/*
+
     if(error.rhinoException) {
         STREAM.print("  \0"+color+"(*\0) Rhino Exception:");
-//        UTIL.forEach(error.stack.split("\n"), function(line) {
-//            STREAM.print("  \0"+color+"(*\0)        " + line);
-//        });
+        UTIL.forEach(error.rhinoException.getScriptStackTrace().split("\n"), function(line) {
+            STREAM.print("  \0"+color+"(*\0)        " + line);
+        });
     }
-*/
+
     if(INCLUDE_NOTES && error.notes) {
         STREAM.print("  \0"+color+"(*\0) Notes:");
         
