@@ -9,11 +9,5 @@
             "type": "git",
             "url": "git://github.com/cadorn/util.git"
         }
-    ],
-    "using": {
-        "lib-js": {
-            "catalog": "http://github.com/cadorn/util/raw/master/catalog.json",
-            "name": "lib-js"
-        }
-    }
+    ]
 }
