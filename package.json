@@ -1,9 +1,6 @@
 {
     "uid": "http://registry.pinf.org/cadorn.org/github/util/",
     "name": "util",
-    "dependencies": [
-        "narwhal"
-    ],
     "repositories": [
         {
             "type": "git",
