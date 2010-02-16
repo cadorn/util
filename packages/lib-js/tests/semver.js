@@ -255,6 +255,17 @@ exports.testVersionsForTags = function() {
         "0.1.1alpha",
         "3.0.0alpha1"
     ]);
+    
+    tags = [
+        "v0.1.0",
+        "test/path/v0.1.1alpha1",
+        "test/path/v0.1.1beta1"
+    ];
+    result = SEMVER.versionsForTags(tags, "test/path");
+    ASSERT.deepEqual(result, [
+        "0.1.1alpha1",
+        "0.1.1beta1"
+    ]);
 }
 
 

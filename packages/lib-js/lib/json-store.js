@@ -42,6 +42,17 @@ JsonStore.prototype.set = function() {
     this.save();
 };
 
+JsonStore.prototype.remove = function(keysPath) {
+    var data = this.get(keysPath, false, true);
+    if(!data) {
+        return false;
+    }
+    delete data[0][data[1]];
+    this.dirty = true;
+    this.save();
+    return true;
+};
+
 JsonStore.prototype.get = function(keysPath, createObjects, returnWithKey) {
     this.load();
     if(!keysPath) {

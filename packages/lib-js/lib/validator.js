@@ -28,6 +28,10 @@ exports.validate = function(type, value, options) {
         if(options["dropTrailingSlash"] && value.substr(value.length-1,1)=="/") {
             value = value.substr(0,value.length-1);
         }
+
+        if(options["appendTrailingSlash"] && value.substr(value.length-1,1)!="/") {
+            value = value + "/";
+        }
         
         var uri = URI.parse(value);
 

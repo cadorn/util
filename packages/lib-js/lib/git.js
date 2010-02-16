@@ -78,17 +78,20 @@ Git.prototype.runCommand = function(command) {
 }
 
 
-Git.prototype.getLatestVersion = function(majorVersion) {
+Git.prototype.getLatestVersion = function(majorVersion, path) {
     if(!this.initialized()) {
         throw new Error("Not initialized!");
     }
-
-    var result = this.runCommand('git tag -l "v*"');
+    var result = this.runCommand('git tag -l "' + ((path)?path+"/":"") + 'v*"');
     if(!result) {
         return false;
     }
     var versions = UTIL.map(result.split("\n"), function(version) {
-        return UTIL.trim(version).substr(1);
+        if(path) {
+            return UTIL.trim(version).substr(path.length+2);
+        } else {
+            return UTIL.trim(version).substr(1);
+        }
     });
     return SEMVER.latestForMajor(versions, majorVersion);
 }
@@ -217,3 +220,38 @@ Git.prototype.getActiveBranch = function() {
     }
     return m[1];
 }
+
+
+Git.prototype.getStatus = function() {
+    if(!this.initialized()) {
+        throw new Error("Not initialized!");
+    }
+    var result = this.runCommand("git status"),
+        m;
+    if(!result) {
+        throw new Error("Error listing status");
+    }
+    var info = {
+            "ahead": false,
+            "dirty": true
+        },
+        lines = result.split("\n"),
+        index = 0;
+
+    if(m = lines[index].match(/^# On branch (.*)$/)) {
+        info.branch = m[1];
+    }
+    index++;
+
+    if(m = lines[index].match(/^# Your branch is ahead of /)) {
+        info.ahead = true;
+        index += 2;
+    }
+
+    if(m = lines[index].match(/^nothing to commit \(working directory clean\)$/)) {
+        info.dirty = false;
+    }
+    
+    return info;
+}
+

@@ -141,9 +141,13 @@ exports.getMajor = function(version, includeAlphanumeric) {
 }
 
 
-exports.versionsForTags = function(tags) {
+exports.versionsForTags = function(tags, path) {
     if(!tags) return false;
     var versions = UTIL.map(tags, function(tag) {
+        if(path) {
+            if(tag.length < (path.length+1)) return false;
+            tag = tag.substr(path.length+1);
+        }
         if(/^v(\d*)\.(\d*)\.(\d*)(([A-Za-z-]*)(\d*)?)?$/.test(tag)) {
             // remove "v" prefix to get valid version string
             return tag.substr(1);
