@@ -49,7 +49,11 @@ Git.prototype.getRootPath = function() {
 }
 
 Git.prototype.getPathPrefix = function() {
-    return this.getRootPath().join(".").relative(this.getPath());
+    var path = this.getRootPath().join(".").relative(this.getPath()).valueOf();
+    if(path.substr(path.length-1,1)=="/") {
+        path = path.substr(0, path.length-1);
+    }
+    return FILE.Path(path);
 }
 
 Git.prototype.init = function() {
