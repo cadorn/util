@@ -1,18 +1,10 @@
 {
+    "uid": "http://registry.pinf.org/cadorn.org/github/util/",
     "name": "util",
-    "dependencies": [
-        "narwhal"
-    ],
     "repositories": [
         {
             "type": "git",
             "url": "git://github.com/cadorn/util.git"
         }
-    ],
-    "using": {
-        "lib-js": {
-            "catalog": "http://github.com/cadorn/util/raw/master/catalog.json",
-            "name": "lib-js"
-        }
-    }
+    ]
 }
