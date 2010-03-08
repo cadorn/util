@@ -58,12 +58,12 @@ Git.prototype.getPathPrefix = function() {
 
 Git.prototype.init = function() {
     if(this.initialized()) {
-        throw new Error("Repository already initialized at: " + this.getPath());
+        throw new GitError("Repository already initialized at: " + this.getPath());
     }
     this.getPath().mkdirs();
     this.runCommand("git init");
     if(!this.checkInitialized()) {
-        throw new Error("Error initializing repository at: " + this.getPath());
+        throw new GitError("Error initializing repository at: " + this.getPath());
     }
 }
 
@@ -78,13 +78,13 @@ Git.prototype.runCommand = function(command) {
     if (result.status === 0 || (result.status==1 && !stderr)) {
         return UTIL.trim(stdout);
     }
-    throw new Error("Error running command (status: "+result.status+") '"+command+"' : "+stderr);
+    throw new GitError("Error running command (status: "+result.status+") '"+command+"' : "+stderr);
 }
 
 
 Git.prototype.getLatestVersion = function(majorVersion, path) {
     if(!this.initialized()) {
-        throw new Error("Not initialized!");
+        throw new GitError("Not initialized!");
     }
     var result = this.runCommand('git tag -l "' + ((path)?path+"/":"") + 'v*"');
     if(!result) {
@@ -103,7 +103,7 @@ Git.prototype.getLatestVersion = function(majorVersion, path) {
 
 Git.prototype.getLatestRevisionForBranch = function(branch) {
     if(!this.initialized()) {
-        throw new Error("Not initialized!");
+        throw new GitError("Not initialized!");
     }
 
     var result = this.runCommand('git log --no-color --pretty=format:"%H" -n 1 ' + branch);
@@ -115,7 +115,7 @@ Git.prototype.getLatestRevisionForBranch = function(branch) {
 
 Git.prototype.getFileForRef = function(revision, path) {
     if(!this.initialized()) {
-        throw new Error("Not initialized!");
+        throw new GitError("Not initialized!");
     }
     var path = this.getPathPrefix().join(path);
     if(path.substr(0,1)=="/") path = path.substr(1);
@@ -128,7 +128,7 @@ Git.prototype.getFileForRef = function(revision, path) {
 
 Git.prototype.getRepositories = function() {
     if(!this.initialized()) {
-        throw new Error("Not initialized!");
+        throw new GitError("Not initialized!");
     }
     if(this.cache.repositories) {
         return this.cache.repositories;
@@ -150,25 +150,25 @@ Git.prototype.getRepositories = function() {
 
 Git.prototype.add = function(path) {
     if(!this.initialized()) {
-        throw new Error("Not initialized!");
+        throw new GitError("Not initialized!");
     }
     var result = this.runCommand("git add " + OS.enquote(path));
     if(result!="") {
-        throw new Error("Error adding file at path: " + path);
+        throw new GitError("Error adding file at path: " + path);
     }
     return true;
 }
 
 Git.prototype.commit = function(message) {
     if(!this.initialized()) {
-        throw new Error("Not initialized!");
+        throw new GitError("Not initialized!");
     }
     var result = this.runCommand("git commit -m " + OS.enquote(message));
     if(!result) {
-        throw new Error("Error comitting");
+        throw new GitError("Error comitting");
     }
     if(!/\d* files changed, \d* insertions\(\+\), \d* deletions\(-\)/g.test(result)) {
-        throw new Error("Error comitting: " + result);
+        throw new GitError("Error comitting: " + result);
     }
     // TODO: Parse result info
     return true;
@@ -176,51 +176,51 @@ Git.prototype.commit = function(message) {
 
 Git.prototype.remoteAdd = function(name, url) {
     if(!this.initialized()) {
-        throw new Error("Not initialized!");
+        throw new GitError("Not initialized!");
     }
     var result = this.runCommand("git remote add " + OS.enquote(name) + " " + OS.enquote(url));
     if(result!="") {
-        throw new Error("Error adding remote");
+        throw new GitError("Error adding remote");
     }
     return true;
 }
 
 Git.prototype.push = function(name, branch) {
     if(!this.initialized()) {
-        throw new Error("Not initialized!");
+        throw new GitError("Not initialized!");
     }
     var result = this.runCommand("git push " + OS.enquote(name) + " " + OS.enquote(branch));
     if(result!="") {
-        throw new Error("Error pusing");
+        throw new GitError("Error pusing");
     }
     return true;
 }
 
 Git.prototype.clone = function(url) {
     if(this.initialized()) {
-        throw new Error("Repository already initialized at path: " + this.getPath());
+        throw new GitError("Repository already initialized at path: " + this.getPath());
     }
     var result = this.runCommand("git clone " + OS.enquote(url) + " .");
     if(!/^Initialized empty Git repository/.test(result)) {
-        throw new Error("Error cloning repository from: " + url);
+        throw new GitError("Error cloning repository from: " + url);
     }
     if(!this.checkInitialized()) {
-        throw new Error("Error verifying cloned repository at: " + this.getPath());
+        throw new GitError("Error verifying cloned repository at: " + this.getPath());
     }
     return true;
 }
 
 Git.prototype.getActiveBranch = function() {
     if(!this.initialized()) {
-        throw new Error("Not initialized!");
+        throw new GitError("Not initialized!");
     }
     var result = this.runCommand("git branch"),
         m;
     if(!result) {
-        throw new Error("Error listing branches");
+        throw new GitError("Error listing branches");
     } else
     if(!(m = result.match(/\n?\*\s(\w*)\n?/))) {
-        throw new Error("Error parsing active branch");
+        throw new GitError("Error parsing active branch");
     }
     return m[1];
 }
@@ -228,12 +228,12 @@ Git.prototype.getActiveBranch = function() {
 
 Git.prototype.getStatus = function() {
     if(!this.initialized()) {
-        throw new Error("Not initialized!");
+        throw new GitError("Not initialized!");
     }
     var result = this.runCommand("git status"),
         m;
     if(!result) {
-        throw new Error("Error listing status");
+        throw new GitError("Error listing status");
     }
     var info = {
             "ahead": false,
@@ -259,3 +259,14 @@ Git.prototype.getStatus = function() {
     return info;
 }
 
+
+
+var GitError = exports.GitError = function(message) {
+    this.name = "GitError";
+    this.message = message;
+
+    // this lets us get a stack trace in Rhino
+    if (typeof Packages !== "undefined")
+        this.rhinoException = Packages.org.mozilla.javascript.JavaScriptException(this, null, 0);
+}
+GitError.prototype = new Error();
