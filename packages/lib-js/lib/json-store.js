@@ -22,7 +22,7 @@ JsonStore.prototype.getFile = function() {
 
 JsonStore.prototype.init = function() {
     if(this.exists()) {
-        throw new Error("Store exists. Cannot initialize store at: " + this.file);
+        throw new JsonStoreError("Store exists. Cannot initialize store at: " + this.file);
     }
     this.data = {};
     this.save(true);
@@ -36,7 +36,7 @@ JsonStore.prototype.set = function() {
         var data = this.get(arguments[0], true, true);
         data[0][data[1]] = arguments[1];
     } else {
-        throw new Error("Invalid argument count: " + arguments.length);
+        throw new JsonStoreError("Invalid argument count: " + arguments.length);
     }
     this.dirty = true;
     this.save();
@@ -98,16 +98,16 @@ JsonStore.prototype.hasFileChanged = function() {
 
 JsonStore.prototype.load = function(force) {
     if(this.dirty && !force) {
-        throw new Error("Cannot load store. Unsaved data present.");
+        throw new JsonStoreError("Cannot load store. Unsaved data present.");
     }
     if(!this.exists()) {
-        throw new Error("Cannot load store. Store does not exist on disk at: " + this.file);
+        throw new JsonStoreError("Cannot load store. Store does not exist on disk at: " + this.file);
     }
     if(this.hasFileChanged()) {
         try {
             this.data = JSON.decode(this.file.read());
         } catch(e) {
-            throw new Error("Error parsing JSON from file: " + this.file);
+            throw new JsonStoreError("Error parsing JSON from file: " + this.file);
         }
         this.fileMtime = this.file.mtime();
     }
@@ -116,10 +116,10 @@ JsonStore.prototype.load = function(force) {
 
 JsonStore.prototype.save = function(force) {
     if(!this.exists() && !force) {
-        throw new Error("Cannot save store. Store does not exist on disk at: " + this.file);
+        throw new JsonStoreError("Cannot save store. Store does not exist on disk at: " + this.file);
     }
     if(this.hasFileChanged() && !force) {
-        throw new Error("Cannot save store. Data changed on disk: "+this.file);
+        throw new JsonStoreError("Cannot save store. Data changed on disk: "+this.file);
     }
     if(!this.dirty && !force) return;
     if(!this.file.dirname().exists()) this.file.dirname().mkdirs();
@@ -127,3 +127,16 @@ JsonStore.prototype.save = function(force) {
     this.fileMtime = this.file.mtime();
     this.dirty = false;
 };
+
+
+
+
+var JsonStoreError = exports.JsonStoreError = function(message) {
+    this.name = "JsonStoreError";
+    this.message = message;
+
+    // this lets us get a stack trace in Rhino
+    if (typeof Packages !== "undefined")
+        this.rhinoException = Packages.org.mozilla.javascript.JavaScriptException(this, null, 0);
+}
+JsonStoreError.prototype = new Error();
