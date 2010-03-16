@@ -210,6 +210,35 @@ Git.prototype.clone = function(url) {
     return true;
 }
 
+
+Git.prototype.branch = function(name, options) {
+    if(!this.initialized()) {
+        throw new GitError("Not initialized!");
+    }
+    options = options || {};
+    if(options.track) {
+        var result = this.runCommand("git branch --track " + options.track + " " + name);
+        var parts = name.split("/");
+        if(result!="Branch "+options.track+" set up to track remote branch "+parts[1]+" from "+parts[0]+".") {
+            throw new GitError("Error creating branch: " + result);
+        }
+        return true;
+    } else {
+        throw new GitError("NYI");
+    }
+}
+
+Git.prototype.checkout = function(name) {
+    if(!this.initialized()) {
+        throw new GitError("Not initialized!");
+    }
+    var result = this.runCommand("git checkout " + name);
+    if(result) {
+        throw new GitError("Error checking out branch: " + result);
+    }
+    return true;
+}
+
 Git.prototype.getActiveBranch = function() {
     if(!this.initialized()) {
         throw new GitError("Not initialized!");
@@ -223,6 +252,32 @@ Git.prototype.getActiveBranch = function() {
         throw new GitError("Error parsing active branch");
     }
     return m[1];
+}
+
+Git.prototype.getBranches = function(remoteName) {
+    if(!this.initialized()) {
+        throw new GitError("Not initialized!");
+    }
+    var result = this.runCommand("git branch" + ((remoteName)?" -r":""));
+    if(!result) {
+        throw new GitError("Error listing branches");
+    }
+    var branches = [],
+        m;
+    result.split("\n").forEach(function(line) {
+        if(remoteName) {
+            if(m = line.match(/^\s*([^\/]*)\/(\w*)$/)) {
+                if(m[1]==remoteName) {
+                    branches.push(m[2]);
+                }
+            }
+        } else {
+            if(m = line.match(/^\*\s(\w*)$/)) {
+                branches.push(m[1]);
+            }
+        }
+    });
+    return branches;
 }
 
 

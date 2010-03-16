@@ -4,4 +4,5 @@
 *.local.*
 /using/
 /build/
-/.pinf-workspace.json
+.pinf-workspace.json
+.pinf-activate-workspace
