@@ -142,7 +142,7 @@ Git.prototype.getRepositories = function() {
         repositories = [];
     remotes.forEach(function(name) {
         result = self.runCommand('git remote show -n ' + name);
-        repositories.push(new RegExp("^. remote " + name + "\n  URL: ([^\n]*)\n").exec(result)[1]);
+        repositories.push(new RegExp("^. remote " + name + "\n ( Fetch)? URL: ([^\n]*)\n").exec(result)[2]);
     });
     this.cache.repositories = repositories;
     return repositories;

@@ -57,6 +57,20 @@ exports.testValidate = function() {
 
 }
 
+exports.testCompare = function() {
+    
+    var result;
+        
+    result = SEMVER.compare("1.0", "1.1");
+    ASSERT.equal(result, -1);
+
+    result = SEMVER.compare("1.0", "1.0");
+    ASSERT.equal(result, 0);
+    
+    result = SEMVER.compare("1.1", "1.0");
+    ASSERT.equal(result, 1);
+}
+
 exports.testSort = function() {
 
     var versions = [],

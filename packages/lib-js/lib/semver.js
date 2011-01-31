@@ -20,6 +20,19 @@ exports.validate = function(version, options) {
     return true;
 }
 
+// @see http://www.php.net/manual/en/function.version-compare.php
+exports.compare = function(a, b) {
+    var versions = exports.sort([a, b]);
+    if(versions[0]==versions[1]) {
+        return 0;
+    } else
+    if(versions[0]==a) {
+        return -1;
+    } else {
+        return 1;
+    }
+}
+
 // NOTE: We also sort the alphanumeric string by detaching the numeric suffix if applicable
 exports.sort = function(versions) {
     var aO, bO;
